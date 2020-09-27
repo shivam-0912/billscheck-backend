@@ -5,9 +5,18 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from items.models import Item,User
-from items.serializers import ItemSerializer,UserSerializer
+from items.serializers import ItemSerializer,UserSerializer,LoginSerializer
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
+test_param = openapi.Parameter('pk2', openapi.IN_QUERY, description="enter item id as pk2", type=openapi.TYPE_BOOLEAN)
+user_response = openapi.Response('Response', ItemSerializer)
+
+@swagger_auto_schema(method='get',responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+# @swagger_auto_schema(method='delete',request_body=None,)
+@swagger_auto_schema(method='post', request_body=ItemSerializer)
 @api_view(['GET', 'POST'])
 def item_list(request,id, format=None):
     """
@@ -26,6 +35,14 @@ def item_list(request,id, format=None):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+
+# 'method' can be used to customize a single HTTP method of a view
+
+@swagger_auto_schema(method='get',responses={200: user_response})
+# 'methods' can be used to apply the same modification to multiple methods
+@swagger_auto_schema(method='delete',request_body=None,)
+@swagger_auto_schema(method='put', request_body=ItemSerializer)
 @api_view(['GET', 'PUT', 'DELETE'])
 def item_detail(request,pk2, format=None):
     """
@@ -52,8 +69,8 @@ def item_detail(request,pk2, format=None):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
-
-    
+user_response = openapi.Response('Response', UserSerializer)
+@swagger_auto_schema(method='post', request_body=LoginSerializer,responses={200: user_response})
 @api_view(['POST'])
 def login(request, format=None):
     """
@@ -69,7 +86,7 @@ def login(request, format=None):
     serializer = UserSerializer(user)
     return Response(serializer.data)
 
-
+@swagger_auto_schema(method='post', request_body=UserSerializer)
 @api_view(['POST'])
 def signup(request, format=None):
       if request.method == 'POST':
